@@ -1,0 +1,70 @@
+CHARITABLE LOAN FACILITATOR PROJECT NOTES
+*
+TODO List:
+1. Implement Spring for dependencies.
+2. Add functional requirement action methods to each type of user - Currently working on User after finishing Guest.
+
+*
+Notes:
+Charitable loan:  A loan given with the understanding that the loan may never be repayed.
+
+- The purpose of this application is to facilitate charitable loans via the internet to specific countries selected as eligible and in need of charitable funding.
+
+- The countries selected will be those determined to be in need.  The poorest nations on Earth will necessarily be on the short list.
+
+- The application will allow anyone with access to the internet and the necessary funds to loan money for a specific proposed project, venture, etc to a specific individuals in one of the selected nations.
+
+- All loaning users will be made explicitly aware that the money given for THE LOAN MAY NEVER BE REPAYED IN PART OR IN FULL.
+
+- Don't allow comments by users or any type of public forums or postings
+
+- Do allow project creators to post posts to projects that they have created
+
+- Do allow direct messaging between individuals.
+
+- Cannot score as with stars users or projects
+
+- need to protect reipient from abuse by loaners and protect loaners from distrust
+
+- have internal credit evaluation for rating trustworthiness
+*
+Objects List:
+User->Loaner
+    ->LoanRecipient
+Guest
+Project
+ KeyWordsList
+ ProjectPostsList
+ ProjectPost (a post by a Recipient, meant to provide information about the project, updates, etc including images,videos etc.)
+ Funds (Money recieved towards the project)
+ FundersList (List of funders with the amounts Loaned assocaited with them.)
+Loan
+Payment (towards paying back a loan)
+SignUpProcessor
+ CountryOfOriginVerifier
+Credit (Score kept track of by the application to indicate trustworthiness)
+ProjectSearcher
+*
+Requirements:
+Create User
+	Allow User to Search for Projects by SearchFieldText in a hash table of ProjectIDs (scrub then parse input for keywords that have been associated with a Project by the loanRecipientUser).
+	Allow User to view ProjectPage (basic information about the project as well as posts associated with the Project Posted by the LoanRecipientUser) for all projects.
+	Allow User to Register as a LoanRecipientUser.
+	  Verify that the LoanRecipientUser is located in the ElligibleCountryList before allowing them to Register.
+		Allow LoanRecipientUser to Create a Project.
+		Allow LoanRecipientUser to view its Projects.
+		Allow LoanRecipientUser to update basic Project information.
+		Allow LoanRecipientUser to delete project.
+Create Guest
+	Allow Guest to Register as a User.
+	Allow Guest to Search for Projects.
+	Allow Guest to view ProjectPage (basic information about the project as well as posts associated with the Project Posted by the LoanRecipientUser
+	Allow Guest to Loan LoanFunds towards a Project.
+	
+*
+Name Options: 
+CharitableLoanPlatform
+CherryLoafs
+
+
+
