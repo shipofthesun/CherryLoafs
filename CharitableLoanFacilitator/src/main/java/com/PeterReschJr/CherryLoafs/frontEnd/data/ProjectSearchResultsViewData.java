@@ -4,7 +4,8 @@ import com.PeterReschJr.CherryLoafs.project.datastructs.ProjectList;
 
 /**
  * A ProjectSearchResultsViewData represents data needed to populate a 
- * ProjectSearchResultsView.
+ * ProjectSearchResultsView.  This includes the original search term and zero or more 
+ * ProjectList items.  This class also servers as a signal to the FrontEnd that
  * 
  * @author peter
  *
@@ -43,8 +44,8 @@ public class ProjectSearchResultsViewData extends ViewData {
 	
 	/**
 	 * Constructor to create a results view with no results.  This will indicate to the FrontEnd 
-	 * controller that no results were found and that the SearchBarUIElement should be populated by 
-	 * searchString and ProjectResultsListUIElement populated with the 
+	 * controller that no results were found and that the SearchBarUIElement should be 
+	 * populated by searchString and ProjectResultsListUIElement populated with the 
 	 * GENERIC_NO_SEARCH_RESULTS_FOUND_MESSAGE .
 	 * 
 	 * @param searchString

@@ -1,5 +1,7 @@
 package com.PeterReschJr.CherryLoafs.frontEnd;
 
+import jakarta.servlet.http.HttpSession;
+
 /**
  * A Session represents some connection to an active User or Guest through front end.  Most 
  * likely JSP's with Spring MVC.
@@ -9,15 +11,14 @@ package com.PeterReschJr.CherryLoafs.frontEnd;
  */
 public class Session {
 	
-	//TODO Declare Session member variable
+	HttpSession httpSession;
 	
-	
-	
-	
-	
-	/**/
-	public static void main(String[] args) {
-		// Test Driver
+	public Session(HttpSession httpSession) {
+		this.httpSession = httpSession;
 	}
-	/**/
+	
+	public void addElement(Object object) {
+		httpSession.setAttribute
+	}
+	
 }

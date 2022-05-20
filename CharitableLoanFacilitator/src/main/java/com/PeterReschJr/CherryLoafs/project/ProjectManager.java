@@ -1,11 +1,19 @@
 
-package com.PeterReschJr.CherryLoafs.CherryLoafs.project;
+package com.PeterReschJr.CherryLoafs.project;
 
 import com.PeterReschJr.CherryLoafs.db.Database;
 import com.PeterReschJr.CherryLoafs.db.ProjectDatabaseObject;
+import com.PeterReschJr.CherryLoafs.db.data.DatabaseData;
+import com.PeterReschJr.CherryLoafs.db.data.ProjectDetailsFoundDatabaseData;
 import com.PeterReschJr.CherryLoafs.db.exception.DatabaseException;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.CreateProjectFormViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.DeleteProjectViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToUpdateProjectFormViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectSearchResultsViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectSelectViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectDetailsViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.RequestLoanRecipientProjectListViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.UpdateProjectFormViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ViewData;
 import com.PeterReschJr.CherryLoafs.project.datastructs.ProjectList;
 import com.PeterReschJr.CherryLoafs.search.ProjectFinder;
@@ -19,6 +27,14 @@ import com.PeterReschJr.CherryLoafs.search.datastructs.KeywordList;
  *
  */
 public class ProjectManager {
+	
+	/**
+	 * ProjectManager's member variables:
+	 */
+	private int nextProjectIDNumber;	// The Project Identification Number to assign to the 
+																// next Project to be created.  Also it is implied that 
+																// nextProjectIDNumber - 1 is equivalent to the 
+																// ProjectIDNumber assigned to the last Project created.
 	
 	/**
 	 * Public static method to request an instance of ProjectManager.
@@ -78,29 +94,129 @@ public class ProjectManager {
 	
 	/**
 	 * Get Project details (this includes projectName, projectDescription, ProjectPostList, etc) to
-	 * return back to the user as
+	 * return back to the user to populate a ProjectViewData view.
 	 * @param projectIDNumber
 	 */
-	public ProjectViewData getProjectDetails(long projectIDNumber) 
+	public ViewData getProjectDetails(ProjectSelectViewData projectSelectViewData) 
 																												throws DatabaseException {
-		// TODO: Search for project in Database using projectIDNumber.  Return project details
-		// as ProjectViewData if Project is found; return null if no ProjectViewData was found.
-		// Will throw DatabaseException if database operation results in failure.
+		// Ask the DatabaseManager to attempt to fetch the details for the Project specified
+		// in projectSelectViewData.projectIDNumber;
 		Database database = Database.getDatabaseInstance();
-		ProjectDatabaseObject projectDatabaseObject;
+		DatabaseData databaseData = null;
+		long projectIDNumber = Long.parseLong(projectSelectViewData.getProjectIDNumber());
+
 		try {
-			projectDatabaseObject = database.getProjectDetails(projectIDNumber);
+			databaseData = database.fetchProjectDetails(projectIDNumber);
 		}
 		catch (DatabaseException e){
+			e.printStackTrace();
 			throw e;
 		}
 		catch (Throwable e) {
 			e.printStackTrace();
 		}
 		
-		if (projectDatabaseObject != null) {
-			return new ProjectViewData(projectDatabaseObject.get)
+		if (databaseData != null) {
+		// The requested data was found, so return a ProjectViewData containing data fields
+		// fetched from the Database.
+			databaseData = (ProjectDetailsFoundDatabaseData)databaseData;
+			
+			return new ProjectDetailsViewData(databaseData.getProjectName(),
+					databaseData.getProjectDescription(), databaseData.getLoanRecipientUserName(), databaseData.getGoalAmount(),
+					databaseData.getCurrentAmount(), databaseData.getProjectPostList());
+		}
+		else {
+			return null;
 		}
 	}
-
+	
+	public ViewData getProjectUpdateDetails(GoToUpdateProjectFormViewData 
+													goToUpdateProjectFormViewData) throws DatabaseException {
+		
+		return null;
+	}
+	
+	public ViewData getLoanRecipientProjectList(RequestLoanRecipientProjectListViewData 
+									requestLoanRecipientProjectListViewData) throws DatabaseException {
+		// Attempt fetch ProjectList .
+		Database database = Database.getDatabaseInstance();
+		DatabaseData databaseData = null;
+		long userIDNumber = 
+				Long.parseLong(requestLoanRecipientProjectListViewData.getUserIDNumber());
+		try {
+			databaseData = database.fetchLoanRecipientUserProjectList(userIDNumber);
+		}
+		
+		return null;
+	}
+	
+	public ViewData addProject(CreateProjectFormViewData createProjectFormViewData) 
+																												throws DatabaseException {
+		// Attempt to persist a new ProjectDatabaseObject to the Database with validated fields
+		// entered by LoanRecipientUser attempting to create a Project.
+		Database database = Database.getDatabaseInstance();
+		ProjectDatabaseObject projectDatabaseObject = 
+								new ProjectDatabaseObject(
+													createProjectFormViewData.getProjectName(),
+													createProjectFormViewData.getProjectDescription(),
+													Long.toString(nextProjectIDNumber),
+													createProjectFormViewData.getProjectGoalAmount(),
+													createProjectFormViewData.getLoanRecipientUserIDNumber(),
+													createProjectFormViewData.getKeywordList(), 
+													null);
+		
+		DatabaseData databaseData = null;
+		try {
+			databaseData = database.persist(projectDatabaseObject);
+		}
+		catch (DatabaseException e) {
+			e.printStackTrace();
+			throw e;
+		}
+		catch (Throwable e) {
+			e.printStackTrace();
+		}
+		
+		// TODO: Update the KeywordHashTable with new Project.
+		
+		
+		
+	}
+	
+	public ViewData updateProject(UpdateProjectFormViewData updateProjectFormViewData)
+																												throws DatabaseException {
+		Database database = Database.getDatabaseInstance();
+		
+		return null;
+	}
+	
+	public ViewData deleteProject(DeleteProjectViewData deleteProjectViewData) {
+		ViewData viewData = null;
+		Database database = Database.getDatabaseInstance();
+		DatabaseData databaseData = null;
+		try {
+			databaseData = database.deleteProject(deleteProjectViewData.getProjectIDNumber(),
+					deleteProjectViewData.getLoanRecipientUserCreatorIDNumber());
+		}
+		catch (DatabaseException e) {
+			e.printStackTrace();
+			throw e;
+		}
+		catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * ProjectManager's supporting methods:
+	 */
+	private void incrementNextProjectIDNumber() {
+		nextProjectIDNumber = nextProjectIDNumber + 1;
+	}
+	
+	private void decrementNextProjectIDNumber() {
+		nextProjectIDNumber = nextProjectIDNumber - 1;
+	}
+	
+	
 }

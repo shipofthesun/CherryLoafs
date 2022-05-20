@@ -1,39 +1,40 @@
 package com.PeterReschJr.CherryLoafs.user;
 
 import com.PeterReschJr.CherryLoafs.project.ProjectManager;
-import com.PeterReschJr.CherryLoafs.db.Database;
 import com.PeterReschJr.CherryLoafs.db.exception.DatabaseException;
-import com.PeterReschJr.CherryLoafs.frontEnd.FrontEnd;
 import com.PeterReschJr.CherryLoafs.frontEnd.Session;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.DefaultGuestViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.DefaultUserViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.GenericDatabaseErrorViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.GenericLoanTransactionFailedViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToDefaultGuestViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToDefaultGuestViewFailureViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToLoanFundsFormErrorViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToLoanFundsFormViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToUserCreationFormFailureViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToUserCreationFormViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.GoToUserLoginFormViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.LoanFundsFormErrorViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.LoanFundsFormSuccessViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.LoanFundsFormViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.LoginViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectSearchResultsViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectSearchValidationErrorViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectSelectErrorViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectSelectViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.ProjectViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.UserCreationErrorViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.UserCreationViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.UserCreationFormViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.UserLoginFormErrorViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.UserLoginFormValidationErrorViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.UserLoginFormViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.UserViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ViewData;
 import com.PeterReschJr.CherryLoafs.money.LoanFundsManager;
-import com.PeterReschJr.CherryLoafs.project.Project;
-import com.PeterReschJr.CherryLoafs.project.datastructs.ProjectList;
 import com.PeterReschJr.CherryLoafs.validation.Validator;
 import com.PeterReschJr.CherryLoafs.validation.datastructs.ValidationErrorList;
 
 /** 
- * A Guest represents a user of the application who has not registered.  Session will provide all
- * relevant data to fill member variables.
+ * A Guest represents a user of the application who has not registered.  They have the ability
+ * to search for, view, and loan LoanFunds towards a Project.  The abilities of a Guest
+ * at this point are almost identical to those of a registered User of the application.  Additional
+ * key functionality to create Projects and receive funds is provided only to a 
+ * LoanRecipientUser, which is a child class of User.
  * 
  * @author peter
  *
@@ -45,7 +46,7 @@ public class Guest {
 	 */
 	
 	/**
-	 * Creates a new Registered User using data entered by the Guest.  The data required is 
+	 * Attempt to create a new registered User in the application.  The data required is 
 	 * extracted from frontEndsUserCreationViewData.
 	 * 
 	 * Requirement met:  Allow Guest to Register as a User.
@@ -56,12 +57,12 @@ public class Guest {
 	 */
 	// TODO:  Something goofy going on with Guest.becomeUser(UserCreationViewData).  
 	// Need to check this out.
-	public ViewData becomeUser(UserCreationViewData frontEndsUserCreationViewData) {
+	public ViewData becomeUser(UserCreationFormViewData callersUserCreationFormViewData) {
 		// Validate data fields.
 		Validator validator = Validator.getValidatorInstance();
 		// Validator.validate() returns null if the validation was successful (no ValidationErrors were
 		// found.)  Otherwise, it returns a populated ValidationErrorList.
-		ValidationErrorList validationErrorList = validator.validate(frontEndsUserCreationViewData);
+		ValidationErrorList validationErrorList = validator.validate(callersUserCreationFormViewData);
 		
 		// Initialize DefaultGuestViewData to null, which indicates that the User has not (yet) been 
 		// successfully added to the application.
@@ -79,7 +80,7 @@ public class Guest {
 			UserManager userManager = UserManager.getUserManagerInstance();
 			try {
 				// userManager.addNewUser returns null if the operation was unsuccessful.
-				defaultUserViewData = userManager.addNewUser(frontEndsUserCreationViewData);
+				defaultUserViewData = userManager.addNewUser(callersUserCreationFormViewData);
 			}
 			catch (DatabaseException e) {
 				// Return generic Database failure message to FrontEnd.
@@ -100,45 +101,49 @@ public class Guest {
 				// field values.  This will be a catch all for any errors that occur for which their is no
 				// specific handling in place.  I probably will need to add a UserCreationErrorsList class
 				// at some point for specific error logging and handling.  Between validation errors
-				// and exceptions related to Database operations, though, I feel like specific UserCreationErrors
-				// may not be necessary.
-				return new UserCreationErrorViewData(frontEndsUserCreationViewData.getFirstName(),
-																			  frontEndsUserCreationViewData.getLastName(),
-																					  frontEndsUserCreationViewData.getEmail(),
-																			  frontEndsUserCreationViewData.getPassword());
+				// and exceptions related to Database operations, though, I feel like specific 
+				// UserCreationErrors may not be necessary.
+				return new UserCreationErrorViewData(
+																		   callersUserCreationFormViewData.getFirstName(),
+																		   callersUserCreationFormViewData.getLastName(),
+																		   callersUserCreationFormViewData.getEmail(),
+																		   callersUserCreationFormViewData.getPassword());
 			}
 		}
 		else {
 		// User was not successfully added due to NewUserCreation ValidationErrors having been
 		// found.
 			// Return a UserCreationErrorsView to FrontEnd to signal that the UserCreationErrorView
-			// should be shown populated with the original data from FrontEnd plus a 
-			// validationErrorList that the controller will use to determine
-			// what error messages will displayed to the Guest depending on the type and nature of 
-			// ValidationErrors contained in the validationErrorList.
-			return new UserCreationErrorViewData(frontEndsUserCreationViewData.getFirstName(),
-					   														  frontEndsUserCreationViewData.getLastName(),
-					   																  frontEndsUserCreationViewData.getEmail(),
-					   														  frontEndsUserCreationViewData.getPassword(),
-					   																										 validationErrorList);
+			// should be shown populated with the original data from the FrontEnd plus a 
+			// validationErrorList that the controller will use to determine what error messages will 
+			// displayed to the Guest depending on the type and nature of the ValidationErrors 
+			// contained in the validationErrorList.
+			return new UserCreationErrorViewData(
+																		   callersUserCreationFormViewData.getFirstName(),
+																		   callersUserCreationFormViewData.getLastName(),
+																		   callersUserCreationFormViewData.getEmail(),
+																		   callersUserCreationFormViewData.getPassword(),
+				   														   validationErrorList);
 		}
+	}
 	
 	/**
-	 * Allows a Guest to Search for a List of Projects by entering text into the SearchBar.  Extracts
-	 * the value of GuestViewData.searchString from userViewData input.
+	 * Allows a Guest to Search for a List of Projects by entering text into the FrontEnd
+	 * ProjectSearchBarUIElement.  Extracts the value of GuestViewData.searchString 
+	 * from userViewData input.
 	 * 
 	 * Requirement:  Allow Guest to Search for Projects.
 	 * 
 	 * @param userViewData
-	 * @return ViewData: Either a child projectSearchResultsViewData, 
+	 * @return a ViewData of child type projectSearchResultsViewData,
 	 * GenericDatabaseErrorViewData, or projectSearchValidationErrorViewData object.
 	 */
-	public ViewData searchForProjects(UserViewData frontEndsUserViewData) {
+	public ViewData searchForProjects(UserViewData callersUserViewData) {
 		
-		// Validate userViewData.
+		// Validate input object.
 		Validator validator = Validator.getValidatorInstance();
 		// Validator.validate returns null if no validation errors occur.
-		ValidationErrorList validationErrorList = validator.validate(frontEndsUserViewData);
+		ValidationErrorList validationErrorList = validator.validate(callersUserViewData);
 		
 		if(validationErrorList == null) {
 		// No validation errors were returned if validationErrorList is null.
@@ -150,7 +155,7 @@ public class Guest {
 			try {
 				projectSearchResultsViewData  = 
 								projectManager.findProjectsByTextString(
-																					   frontEndsUserViewData.getSearchString());
+																							 callersUserViewData.getSearchString());
 			}
 			catch(DatabaseException e) {
 				e.printStackTrace();
@@ -174,7 +179,8 @@ public class Guest {
 	
 	/**
 	 * Allow guest to view details for a single Project.  This would include basic project details 
-	 * followed by zero or more ProjectPosts created by a LoanRecipientUser.
+	 * followed by zero or more ProjectPosts created by a LoanRecipientUser who created the
+	 * Project.
 	 * 
 	 * Requirement met:  Allow Guest to view ProjectPage.
 	 */
@@ -186,19 +192,16 @@ public class Guest {
 		
 		// Attempt to ask Database to acquire Project details or return ValidationErrorList if 
 		// validation was unsuccessful.
-		ProjectViewData projectViewData = null;	// Create reference for later use in the case that
-																				// Project search is successful.
+		ViewData projectViewData = null;	// ViewData to be returned to FrontEnd to indicate
+																	// what the response should be after processing the input.
 		if(validationErrorList == null) {
 		// No validation errors returned to validationErrorList, so attempt to retrieve Project Details
-		// from Database.
-			// Convert validated String representation of a projectIDNumber to long.
-			long projectIDNumber = 
-						Long.parseLong(projectSelectViewData.getProjectIDNumber());
+		// from Database.	
 			// Ask ProjectManager to attempt to retrieve Project from Database using 
 			// projectSelectViewData.projectIDNumber.
 			ProjectManager projectManager = ProjectManager.getProjectManagerInstance();
 			try {
-				projectViewData = projectManager.getProjectDetails(projectIDNumber);	
+				projectViewData = projectManager.getProjectDetails(projectSelectViewData);	
 			}
 			catch (DatabaseException e) {
 				e.printStackTrace();
@@ -211,7 +214,8 @@ public class Guest {
 		}
 		else {
 		// ValidationErrors were detected; return ValidationError messages to FrontEnd.
-			return new ProjectSelectErrorViewData(projectSelectViewData.getProjectIDNumber(),validationErrorList);
+			return new ProjectSelectErrorViewData(projectSelectViewData.getProjectIDNumber(),
+																			   												  validationErrorList);
 		}
 		
 	}
@@ -225,21 +229,26 @@ public class Guest {
 	 * 
 	 * @param project
 	 */
-	public ViewData loanFunds(LoanFundsFormViewData frontEndsloanFundsFormViewData) {
+	public ViewData loanFunds(LoanFundsFormViewData loanFundsFormViewData) {
 		//Validate input.
 		Validator validator = Validator.getValidatorInstance();
 		// ValidationErrorList.validate(LoanFundsFormViewData) returns null if no ValidationErrors
 		// are found.
-		ValidationErrorList  validationErrorList = validator.validate(frontEndsloanFundsFormViewData);
+		ValidationErrorList  validationErrorList = validator.validate(loanFundsFormViewData);
 		
-		// Attempt to ask loanFundsManger to add new LoanFunds.
+
+		ViewData viewData = null;  // Data set that will be returned to the FrontEnd to indicate 
+													   // the required response given the input object's 
+											           // (frontEndsloanFundsFormViewData's) contents.
+		
+		// Ask loanFundsManger to attempt to persist new LoanFunds specified by input to the
+		// Database.
 		if(validationErrorList == null) {
 			// Request that loanFundsManager attempt to add LoanFunds as specified in form.
-			ViewData loanFundsAttemptResultsViewData;
-			LoanFundsManager loanFundsManager = LoanFundsManager.getLoanFundsManagerInstance();
+			LoanFundsManager loanFundsManager = 
+																	   LoanFundsManager.getLoanFundsManagerInstance();
 			try {
-				loanFundsAttemptResultsViewData = 
-									  loanFundsManager.addLoanFunds(frontEndsloanFundsFormViewData);
+				viewData = loanFundsManager.addLoanFunds(loanFundsFormViewData);
 			}
 			catch (DatabaseException e) {
 				e.printStackTrace();
@@ -249,15 +258,14 @@ public class Guest {
 				e.printStackTrace();
 			}
 			
-			return loanFundsAttemptResultsViewData;
+			return viewData;
 		}
 		else {
-			LoanFundsFormErrorViewData loanFundsFormErrorViewData 
-			= new LoanFundsFormErrorViewData(
-															frontEndsloanFundsFormViewData.getProjectIDNumber(),
-																			frontEndsloanFundsFormViewData.getAmount(),
-																															  validationErrorList);
-			return loanFundsFormErrorViewData;
+			viewData = new LoanFundsFormErrorViewData(
+																			  loanFundsFormViewData.getProjectIDNumber(),
+																			  loanFundsFormViewData.getAmount(),
+																			  validationErrorList);
+			return viewData;
 		}
 		
 	}
@@ -269,21 +277,21 @@ public class Guest {
 	 * 
 	 * Requirement met: Allow Guest to login as a User.
 	 * 
-	 * @param loginViewData
+	 * @param userLoginFormViewData
 	 */
-	public ViewData loginAsUser(LoginViewData loginViewData) {
+	public ViewData loginAsUser(UserLoginFormViewData userLoginFormViewData) {
 		// Validate Guest input.
 		Validator validator = Validator.getValidatorInstance();
-		ValidationErrorList validationErrorList = validator.validate(loginViewData);
+		ValidationErrorList validationErrorList = validator.validate(userLoginFormViewData);
 		
 		// Check Guest's provided credentials for a match with a User in the Database.
 		UserManager userManager = UserManager.getUserManagerInstance();
-		ViewData defaultUserViewData = null;
+		ViewData viewData = null;
 		if(validationErrorList == null) {
 			try {
-			// UserManager.loginUser(LoginViewData) returns an instance of defaultUserViewData
+			//  UserManager.loginUser(LoginViewData) returns an instance of defaultUserViewData
 			//  on success or an instance of LoginFailureViewData on failure;
-				defaultUserViewData = userManager.loginUser(loginViewData);
+				viewData = userManager.loginUser(userLoginFormViewData);
 			}
 			catch(DatabaseException e) {
 				e.printStackTrace();
@@ -299,10 +307,10 @@ public class Guest {
 			// Returns DefaultUserViewData to the FrontEnd to signal that the Guest's attempt
 			// to Login was successful and that a defaultUserView should be displayed populated
 			// with the data contained in defaultUserViewData.
-			return defaultUserViewData;	
+			return viewData;	
 		}
 		else {
-			return new UserLoginFormErrorViewData(loginViewData.getUserName(),
+			return new UserLoginFormErrorViewData(userLoginFormViewData.getUserName(),
 																															  validationErrorList);
 		}
 		
@@ -324,13 +332,14 @@ public class Guest {
 	public ViewData goToLoanFundsFormView(GoToLoanFundsFormViewData 
 																										goToLoanFundsFormViewData) {
 		// Validate input (though it comes from FrontEnd without the input of a user, so this may
-		// be unnecessary.  It is probably better to validate even this for saftey's sake.)
+		// not be unnecessary.  It is probably better to validate even this for saftey's sake.)
 		Validator validator = Validator.getValidatorInstance();
 		ValidationErrorList validationErrorList = validator.validate(goToLoanFundsFormViewData);
 		
 		if(validationErrorList == null) {
 			// Return blank LoanFundsFormViewData to FrontEnd.
-			return new LoanFundsFormViewData(goToLoanFundsFormViewData.getProjectIDNumber());
+			return new LoanFundsFormViewData(
+																	goToLoanFundsFormViewData.getProjectIDNumber());
 		}
 		else {
 			GoToLoanFundsFormErrorViewData goToLoanFundsFormErrorViewData = 
@@ -341,4 +350,68 @@ public class Guest {
 			return goToLoanFundsFormErrorViewData;
 		}
 	}
+	
+	/**
+	 * 
+	 * @param goToUserCreationFormViewData
+	 * @return a subclass of ViewData.
+	 */
+	public ViewData goToUserCreationForm(GoToUserCreationFormViewData 
+																									goToUserCreationFormViewData) {
+		// Validate input object.
+		Validator validator = Validator.getValidatorInstance();
+		ValidationErrorList validationErrorList 
+																	= validator.validate(goToUserCreationFormViewData);
+		
+		if(validationErrorList == null) {
+			return new UserCreationFormViewData("","","","","");
+		}
+		else {
+			return new GoToUserCreationFormFailureViewData(validationErrorList);
+		}
+	}
+	
+	/**
+	 * Go to UserLoginFormView.
+	 * 
+	 * Supports requirement:  Allow Guest to Login as a User.
+	 * 
+	 * @param goToUserLoginFormViewData
+	 * @return a subclass of ViewData
+	 */
+	public ViewData goToUserLoginForm(GoToUserLoginFormViewData 
+																										  goToUserLoginFormViewData) {
+		// Validate input object.
+		Validator validator = Validator.getValidatorInstance();
+		ValidationErrorList validationErrorList = validator.validate(goToUserLoginFormViewData);
+		
+		if(validationErrorList == null) {
+		// No validation errors were encountered, so signal to FrontEnd that a UserLoginForm
+		// with all fields blank should be displayed to the Guest.
+			return new UserLoginFormViewData("","");
+		}
+		else {
+		// Return a GoToUserCreationFormFailureViewData to the FrontEnd to signal that one or 
+		//	more errors have occured while attempting to authorize the Guest to view the 
+		// UserLoginFormView.  Many of these may not be something that the actual Guest can 
+		// help to resolve, and should be handled appropriately by the FrontEnd controller
+		// based on what errors are included in the validationErrorList.
+			return new GoToUserCreationFormFailureViewData(validationErrorList);
+		}
+	}
+	
+	public ViewData goToDefaultGuestView(GoToDefaultGuestViewData goToDefaultGuestViewData) {
+		// Validate input object.
+		Validator validator = Validator.getValidatorInstance();
+		ValidationErrorList validationErrorList = validator.validate(goToDefaultGuestViewData);
+		
+		if(validationErrorList == null) {
+			return new DefaultGuestViewData();
+		}
+		else {
+			return new GoToDefaultGuestViewFailureViewData(validationErrorList);
+		}
+	}
+	
+	
 }

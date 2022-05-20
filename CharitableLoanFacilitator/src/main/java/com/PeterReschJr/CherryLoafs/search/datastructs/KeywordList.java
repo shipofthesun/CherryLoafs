@@ -1,7 +1,11 @@
 package com.PeterReschJr.CherryLoafs.search.datastructs;
 
+import java.util.ArrayList;
+
+import com.PeterReschJr.CherryLoafs.search.Keyword;
+
 /**
- * A KeywordList holds a List of Keywords.  ArrayList
+ * A KeywordList holds a List of Keywords.  An ArrayList<Keyword> is
  * @author peter
  *
  */
@@ -12,12 +16,6 @@ public class KeywordList {
 	 */
 	ArrayList<Keyword> keywordList;
 	
-	/**
-	 * KeywordList's constructors:
-	 */
-	public KeywordList() {
-		keywordList = new ArrayList<Keyword>();
-	}
 	
 	
 }

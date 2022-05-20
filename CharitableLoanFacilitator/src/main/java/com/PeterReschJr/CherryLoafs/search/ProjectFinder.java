@@ -12,11 +12,6 @@ import com.PeterReschJr.CherryLoafs.project.datastructs.ProjectList;
  */
 public class ProjectFinder {
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-	
 	/**
 	 * Public static method that represents only way to get a ProjectFinder instance.
 	 * 
@@ -55,9 +50,9 @@ public class ProjectFinder {
 		if(searchString == null) {
 			return null;
 		}
-		
-		
-		ArrayList<String> returnWordList = new ArrayList<String>();
+		else {
+			return null;
+		}
 		// TODO: Find words in searchString and add them to returnWordList
 		
 	}

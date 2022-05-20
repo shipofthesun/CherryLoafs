@@ -1,18 +1,16 @@
 package com.PeterReschJr.CherryLoafs.user;
 
 import com.PeterReschJr.CherryLoafs.db.Database;
+import com.PeterReschJr.CherryLoafs.db.LoanRecipientUserDatabaseObject;
 import com.PeterReschJr.CherryLoafs.db.UserDatabaseObject;
+import com.PeterReschJr.CherryLoafs.db.data.DatabaseData;
 import com.PeterReschJr.CherryLoafs.db.exception.DatabaseException;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.DefaultGuestViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.DefaultUserViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.LoginFailureViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.LoginViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.RegisterAsLoanRecipientViewData;
-import com.PeterReschJr.CherryLoafs.frontEnd.data.UserCreationViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.RegisterAsLoanRecipientFormViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.UserCreationFormViewData;
+import com.PeterReschJr.CherryLoafs.frontEnd.data.UserLoginFormViewData;
 import com.PeterReschJr.CherryLoafs.frontEnd.data.ViewData;
-import com.PeterReschJr.CherryLoafs.user.datastructs.UserHashMap;
-
-
 
 /**
  * A UserManager represents a collection of users while exposing some functions related to 
@@ -53,17 +51,19 @@ public class UserManager {
 	 * @param userCreationViewData
 	 * @return
 	 */
-	public DefaultUserViewData addNewUser(UserCreationViewData userCreationViewData) 
+	public DefaultUserViewData addNewUser(UserCreationFormViewData 
+																			userCreationFormViewData) 
 																												throws DatabaseException {
+		
 			// Create a User DatabaseObject populated with fields from the UserCreationViewData
 			// input and attempt to persist it to the Database as a new User.
 			UserDatabaseObject userDatabaseObject = new UserDatabaseObject(
-																							  userCreationViewData.getFirstName(), 
-																							  userCreationViewData.getLastName(), 
-																							  userCreationViewData.getUserName(),
-																							  userCreationViewData.getPassword(),
-																							  						getNextUserIDNumber(),
-																							  		 userCreationViewData.getEmail());
+																					userCreationFormViewData.getFirstName(), 
+																					userCreationFormViewData.getLastName(), 
+																					userCreationFormViewData.getUserName(),
+																					userCreationFormViewData.getPassword(),
+															  						getNextUserIDNumber(),
+															  						userCreationFormViewData.getEmail());
 			Database database = Database.getDatabaseInstance();
 			try {
 				database.persist(userDatabaseObject);
@@ -75,17 +75,17 @@ public class UserManager {
 				e.printStackTrace();
 			}
 			
-			return new DefaultUserViewData(userCreationViewData.getUserName());
+			return new DefaultUserViewData(userCreationFormViewData.getUserName());
 	}
 	
-	public ViewData loginUser(LoginViewData loginViewData) throws DatabaseException {
+	public ViewData loginUser(UserLoginFormViewData userLoginFormViewData) throws DatabaseException {
 		//TODO: Confirm that User with matching name and password exists in the database.
 		// Return UserDefaultLoginViewData
 		Database database = Database.getDatabaseInstance();
 		UserDatabaseObject userDatabaseObject = null;
 		try {
-			userDatabaseObject = database.findUser(loginViewData.getUserName(), 
-																											loginViewData.getPassword());
+			userDatabaseObject = database.fetchUser(userLoginFormViewData.getUserName(), 
+																						userLoginFormViewData.getPassword());
 		}
 		catch (DatabaseException e){
 			throw e;
@@ -93,6 +93,7 @@ public class UserManager {
 		catch (Throwable e) {
 			e.printStackTrace();
 		}
+		
 		if(userDatabaseObject != null) {
 		// The user was found in the Database, so return DefaultUserViewData with the userName
 		// parameter populated from the userDatabaseObject to signal to the FrontEnd that
@@ -108,8 +109,29 @@ public class UserManager {
 		}
 	}
 	
-	public ViewData registerUserAsLoanRecipientUser(RegisterAsLoanRecipientViewData 
-													registerAsLoanRecipientViewData) throws DatabaseException {
+	/**
+	 * 
+	 * @param registerAsLoanRecipientFormViewData
+	 * @return ViewData
+	 * @throws DatabaseException
+	 */
+	public ViewData registerUserAsLoanRecipientUser(RegisterAsLoanRecipientFormViewData 
+											registerAsLoanRecipientFormViewData) throws DatabaseException {
+		
+		Database database = Database.getDatabaseInstance();
+		LoanRecipientUserDatabaseObject loanRecipientUserDatabaseObject = 
+																	new LoanRecipientUserDatabaseObject(
+																	registerAsLoanRecipientFormViewData.getLocation());
+		DatabaseData databaseData = null;
+		try {
+			databaseData = database.persist(loanRecipientUserDatabaseObject);
+		}
+		catch (DatabaseException e) {
+			throw e;
+		}
+		catch(Throwable e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	

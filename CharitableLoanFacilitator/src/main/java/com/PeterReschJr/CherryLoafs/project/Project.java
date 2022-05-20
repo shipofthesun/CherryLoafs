@@ -2,7 +2,6 @@ package com.PeterReschJr.CherryLoafs.project;
 
 import com.PeterReschJr.CherryLoafs.db.ProjectDatabaseObject;
 import com.PeterReschJr.CherryLoafs.frontEnd.Session;
-import com.PeterReschJr.CherryLoafs.money.LoanFundsList;
 import com.PeterReschJr.CherryLoafs.user.LoanRecipientUser;
 import com.PeterReschJr.CherryLoafs.project.datastructs.ProjectPostList;
 import com.PeterReschJr.CherryLoafs.search.datastructs.KeywordList;

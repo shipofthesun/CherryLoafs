@@ -60,8 +60,8 @@ public class GeoLocationVerifier {
 	 */
 	public GeoLocationVerificationErrorList verify(GeoLocationData geoLocationData) {
 		GeoLocationVerificationErrorList geoLocationVerificationErrorList = null;
-		// TODO:  add to geoLocationVerificationErrorList any errors detected during validation.
-		// TODO: validate location; determine if the LoanRecipientUser is in a country or region of
+		// TODO:  add to geoLocationVerificationErrorList any errors detected during verification.
+		// TODO: verify location; determine if the LoanRecipientUser is in a country or region of
 		// a country where any LoanFunds made towards the Project will (likely) be spent, 
 		// assuming the Project is a legitimate effort to raise funds for a real world endeavor in or 
 		// near the LoanRecipientUser's geographical location.
@@ -70,5 +70,15 @@ public class GeoLocationVerifier {
 		// data is available that is outside of the information possibly provided by the FrontEnd.
 		
 		return geoLocationVerificationErrorList;
+	}
+	
+	public String getVerifiedLocation(GeoLocationData geoLocationData) {
+		String location = null;
+		// TODO: Use verified GeoLocationData to determine the value that should be set in the
+		// database for the location of a LoanRecipientUser.  It must correspond exactly with 
+		// an element of the Elligible Country or Region List persisted and maintained manually
+		// in the Database.  For the running application's purpose, it represents a static list of 
+		// values, each a String representation of a country or region of a country on Earth.
+		return location;
 	}
 }
