@@ -304,14 +304,12 @@ public class Guest {
 				e.printStackTrace();
 			}
 			
-			// Returns DefaultUserViewData to the FrontEnd to signal that the Guest's attempt
-			// to Login was successful and that a defaultUserView should be displayed populated
-			// with the data contained in defaultUserViewData.
+			// Returns DefaultUserViewData or LoginFailureViewData
 			return viewData;	
 		}
 		else {
 			return new UserLoginFormErrorViewData(userLoginFormViewData.getUserName(),
-																															  validationErrorList);
+																				   validationErrorList);
 		}
 		
 	}

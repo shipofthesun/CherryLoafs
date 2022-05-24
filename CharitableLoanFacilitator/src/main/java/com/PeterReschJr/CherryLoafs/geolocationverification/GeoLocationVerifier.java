@@ -5,13 +5,12 @@ import com.PeterReschJr.CherryLoafs.geolocationverification.datastructs.GeoLocat
 /**
  * A GeoLocationVerifier is a class used as a tool to verify that a User attempting to register
  * as a LoanRecipientUser is geographically located in a country contained in the 
- * EligibleCountryList in local memory.  The list must either be loaded from the database or
- * the file system.  I have not decided how I would like to implement this yet.  I would like
- * to load it into application memory at application start up and keep it up to date.  The exact
+ * EligibleCountryList in local memory.   The exact
  * nature of this list is at this point undetermined, but would ideally include the most impoverished
- * countries on Earth to the exclusion of the wealthier.  Also, I as yet haven't had any good 
- * thoughts about how to actually verify the User's geographic location.  I need to research 
- * how this can be implemented in as secure a way as possible.  I also am not aware of what 
+ * countries on Earth to the exclusion of the wealthier.  I as yet haven't had any good 
+ * thoughts about how to actually verify the User's geographic location.  The locale tool sounds 
+ * like a good place to start, but this may be easy for a client to manipulate to make them appear to anywhere they wish.
+ * I need to research how this can be implemented in as secure a way as possible.  I also am not aware of what 
  * data I can possibly collect from third party sources as part of the process.  I also do not 
  * know how easy it would be to trick such a system into saying one was somewhere different 
  * than they actually are.  Scammers would be a potential problem with this type of application.

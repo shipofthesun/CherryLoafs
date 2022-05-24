@@ -216,18 +216,18 @@ public class User {
 		// Validate User input.
 		Validator validator = Validator.getValidatorInstance();
 		ValidationErrorList validationErrorList =
-																validator.validate(registerAsLoanRecipientFormViewData);
+															 validator.validate(registerAsLoanRecipientFormViewData);
 		
 		ViewData viewData = null;	// ViewData to be returned to the FrontEnd to signal what
 														// view needs to be displayed to the user as response.
 		
-		// Ask the UserManager to attempt to submit the validated input entered by the User.
+		// Ask the UserManager to attempt to submit the validated input object
 		// Edits User in Database to be a LoanRecipientUser.  This may include adding them to a 
 		// separate LoanRecipientUser table with details specific to having the status of a 
 		// recipient of charitable loans through the application.
-		UserManager userManager = UserManager.getUserManagerInstance();
-		GeoLocationVerifier geoLocationVerifier 
-																	= GeoLocationVerifier.getGeoLocationVerifierInstance();
+		
+		GeoLocationVerifier geoLocationVerifier =
+																		GeoLocationVerifier.getGeoLocationVerifierInstance();
 		if(validationErrorList == null) {
 			GeoLocationData geoLocationData =
 			   new GeoLocationData(registerAsLoanRecipientFormViewData.getGeoLocationData());
@@ -235,6 +235,7 @@ public class User {
 																				= geoLocationVerifier.verify(geoLocationData);
 			// If no errors are contained in geoLocationVerificationErrorList, ask the UserManager 
 			// to attempt to update the User to a LoanRecipientUser in the database.
+			UserManager userManager = UserManager.getUserManagerInstance();
 			if(geoLocationVerificationErrorList == null) {
 				try {
 					viewData = userManager.registerUserAsLoanRecipientUser(

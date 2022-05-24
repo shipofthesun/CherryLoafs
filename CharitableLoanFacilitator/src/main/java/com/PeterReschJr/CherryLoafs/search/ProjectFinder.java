@@ -13,7 +13,7 @@ import com.PeterReschJr.CherryLoafs.project.datastructs.ProjectList;
 public class ProjectFinder {
 
 	/**
-	 * Public static method that represents only way to get a ProjectFinder instance.
+	 * Public static method that represents the only way to get a ProjectFinder instance.
 	 * 
 	 * @return new ProjectFinder
 	 */
@@ -59,6 +59,8 @@ public class ProjectFinder {
 	
 	public ArrayList<Long> findProjectsByKeywordList(ArrayList<String> keywordArrayList) {
 		// TODO: Create ArrayList of Long and insert any 
+		ArrayList<Long> returnProjectIDList = null;
+		return returnProjectIDList;
 	}
 
 }

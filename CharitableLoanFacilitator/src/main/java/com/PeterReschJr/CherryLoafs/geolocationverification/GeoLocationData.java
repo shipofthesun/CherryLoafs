@@ -25,7 +25,7 @@ public class GeoLocationData {
 	 * Basic dummy constructor used for now to allow objects of this type to be created for 
 	 * testing purposes.
 	 */
-	public GeoLocationData(GeoLocationData frontEndsGeoLocationData) {
+	public GeoLocationData(GeoLocationData geoLocationData) {
 		// TODO:  Fill what member variables can be filled from data received through Request or 
 		// Session.
 		// Collect data from other sources, such as the web server, system, or third party sources

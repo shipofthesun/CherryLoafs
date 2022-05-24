@@ -14,9 +14,9 @@ public class LoanFundsFormViewData extends ViewData {
 	 */
 	String projectIDNumber;		
 	String amount;
-	String loanerIDNumber;		// userID number of the user making the loan.  This field would 
+	String loanerIDNumber;		// userID number of the user making the loan.  This field will 
 													// be null the case of a Guest Loaning Funds.  This also indicates
-													// that a LoanFunds is anonymous.
+													// that the LoanFund is being created anonymously.
 	
 	/**
 	 * LoanFundsCreationFormViewData's constructors:
